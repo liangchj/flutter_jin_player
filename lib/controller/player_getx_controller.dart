@@ -418,20 +418,11 @@ class PlayerGetxController extends GetxController {
 
   // 视频播放
   Future<void> play() {
-    // return player.play();
-    player.play();
-    // 避免停止播放时因毫秒原因未标记结束，但实际上已经结束了，此操作为了将弹幕滚动完
-    if (!playConfigOptions.finished.value &&
-        !(playConfigOptions.positionDuration.value.inSeconds ==
-            playConfigOptions.duration.value.inSeconds)) {
-      danmakuControl.pauseDanmaku();
-    }
-    return Future.value(null);
+    return player.play();
   }
 
   // 视频暂停
   Future<void> pause() {
-    danmakuControl.resumeDanmaku();
     return player.pause();
   }
 
