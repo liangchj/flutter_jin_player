@@ -32,12 +32,13 @@ class _PlayPageState extends State<PlayPage> {
     widget.createdPlayerGetxController.call(_playerGetxController);
     _playerGetxController.fullScreenPlayDeep(2);
     _playerGetxController.playConfigOptions.isFullScreen(true);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 在这里执行你的构建之后的操作
-      _playerGetxController.playConfigOptions.isFullScreen(true);
-      AutoOrientation.landscapeAutoMode();
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // 在这里执行你的构建之后的操作
+    //   _playerGetxController.playConfigOptions.isFullScreen(true);
+    //   AutoOrientation.landscapeAutoMode();
+    //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    // });
+
     super.initState();
   }
 

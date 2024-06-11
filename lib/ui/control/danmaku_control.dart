@@ -14,6 +14,7 @@ class DanmakuControl {
 
   // 读取弹幕文件
   void readDanmakuListByFilePath() {
+    controller.logger.d("进入读取弹幕文件内容");
     if (controller.danmakuConfigOptions.danmakuSourceItem.value.path != null &&
         controller
             .danmakuConfigOptions.danmakuSourceItem.value.path!.isNotEmpty &&
@@ -23,11 +24,15 @@ class DanmakuControl {
         ParseBilibiliDanmaku()
             .pasrseBilibiliDanmakuByXml(
                 controller.danmakuConfigOptions.danmakuSourceItem.value.path!,
-                fromAssets: true)
+                fromAssets: controller.danmakuConfigOptions.danmakuSourceItem
+                    .value.pathFromAssets!)
             .then((List<DanmakuItem> list) {
           if (list.isNotEmpty) {
             controller.danmakuConfigOptions.danmakuList.addAll(list);
           }
+
+          controller.logger.d(
+              "读取弹幕文件内容：${controller.danmakuConfigOptions.danmakuList.length}");
         });
       } catch (e) {
         controller.danmakuConfigOptions.errorMsg("读取弹幕文件出错：$e");

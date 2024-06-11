@@ -103,12 +103,14 @@ class DanmakuItem {
 // 弹幕源文件
 class DanmakuSourceItem {
   String? path;
+  bool? pathFromAssets;
   List<DanmakuItem>? addDanmakuList;
   final bool clearOldDanmaku;
   bool read;
 
   DanmakuSourceItem(
       {this.path,
+      this.pathFromAssets = false,
       this.addDanmakuList,
       this.clearOldDanmaku = false,
       this.read = false});
@@ -116,6 +118,7 @@ class DanmakuSourceItem {
   factory DanmakuSourceItem.fromJson(Map<String, dynamic> json) =>
       DanmakuSourceItem(
           path: json["path"],
+          pathFromAssets: json["pathFromAssets"],
           addDanmakuList: json["addDanmakuList"] == null ||
                   json["addDanmakuList"]! is Map<String, dynamic>
               ? null
@@ -125,6 +128,7 @@ class DanmakuSourceItem {
 
   Map<String, dynamic> toJson() => {
         "path": path,
+        "pathFromAssets": pathFromAssets,
         "addDanmakuList": addDanmakuList != null
             ? danmakuItemListToJson(addDanmakuList!)
             : addDanmakuList,

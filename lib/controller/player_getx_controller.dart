@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/foundation.dart';
@@ -46,6 +47,8 @@ class PlayerGetxController extends GetxController {
   var fullScreenPlayDeep = 1.obs;
 
   bool isWeb = kIsWeb;
+
+  bool _beforeHideAppPlaying = false;
 
   @override
   void onInit() {
@@ -142,9 +145,9 @@ class PlayerGetxController extends GetxController {
       danmakuConfigOptions.danmakuSourceItem.refresh();
       // danmakuControl.initDanmaku();
       // danmakuControl.readDanmakuListByFilePath();
-      if (resourceItem.danmakuSourceItem != null &&
-          resourceItem.danmakuSourceItem!.path != null &&
-          resourceItem.danmakuSourceItem!.path!.isNotEmpty) {
+      logger.d("当前视频资源变化：弹幕：${resourceItem.danmakuSourceItem?.path}");
+      if (resourceItem.danmakuSourceItem != null) {
+        logger.d("当前视频资源变化，且有弹幕信息");
         danmakuConfigOptions.danmakuSourceItem(resourceItem.danmakuSourceItem!);
       }
     });
@@ -185,6 +188,7 @@ class PlayerGetxController extends GetxController {
         WakelockPlus.enable();
         // 继续播放弹幕
         logger.d("触发弹幕继续播放");
+        // 这里监听会有延迟
         danmakuControl.resumeDanmaku();
       } else {
         // 暂停时关闭保持屏幕唤醒
@@ -263,12 +267,22 @@ class PlayerGetxController extends GetxController {
 
     // 弹幕文件路径变化
     ever(danmakuConfigOptions.danmakuSourceItem, (item) {
+      logger.d("弹幕源变化，路径：${item.path}，读取：${item.read}");
       danmakuControl.clearDanmaku();
       danmakuConfigOptions.danmakuList.clear();
       danmakuConfigOptions.danmakuList.refresh();
+      if (danmakuConfigOptions.danmakuSourceItem.value.clearOldDanmaku) {
+        danmakuConfigOptions.danmakuList.clear();
+      }
       if (item.path != null && item.path!.isNotEmpty && !item.read) {
-        logger.d("弹幕不为空");
+        logger.d("弹幕源变化，路径不为空：${item.path}");
         danmakuControl.readDanmakuListByFilePath();
+      }
+      if (danmakuConfigOptions.danmakuSourceItem.value.addDanmakuList != null &&
+          danmakuConfigOptions
+              .danmakuSourceItem.value.addDanmakuList!.isNotEmpty) {
+        danmakuConfigOptions.danmakuList.addAll(
+            danmakuConfigOptions.danmakuSourceItem.value.addDanmakuList!);
       }
     });
 
@@ -404,11 +418,20 @@ class PlayerGetxController extends GetxController {
 
   // 视频播放
   Future<void> play() {
-    return player.play();
+    // return player.play();
+    player.play();
+    // 避免停止播放时因毫秒原因未标记结束，但实际上已经结束了，此操作为了将弹幕滚动完
+    if (!playConfigOptions.finished.value &&
+        !(playConfigOptions.positionDuration.value.inSeconds ==
+            playConfigOptions.duration.value.inSeconds)) {
+      danmakuControl.pauseDanmaku();
+    }
+    return Future.value(null);
   }
 
   // 视频暂停
   Future<void> pause() {
+    danmakuControl.resumeDanmaku();
     return player.pause();
   }
 
@@ -452,7 +475,7 @@ class PlayerGetxController extends GetxController {
       playConfigOptions.isFullScreen(true);
       fullScreenPlayDeep(2);
       // Get.to(PlayPage(jinPlayerView: jinPlayerView));
-      Get.to(const FullScreenPlayPage());
+      Get.to(const FullScreenPlayPage(), popGesture: true);
     }
     uiConfigOptions.uiLocked(false);
     cancelAndRestartTimer();
@@ -616,5 +639,92 @@ class PlayerGetxController extends GetxController {
     Future.delayed(UIConstants.volumeOrBrightnessUIShowDuration).then((value) {
       uiControl.hideUIByKeyList([GetxId.centerVolumeAndBrightnessUI]);
     });
+  }
+
+  // =============================== 根据App状态的产生的各种回调 ===============================
+
+  AppLifecycleListener getAppLifecycleListener() {
+    return AppLifecycleListener(
+      onStateChange: onStateChange,
+      onResume: onResume,
+      onInactive: onInactive,
+      onHide: onHide,
+      onShow: onShow,
+      onPause: onPause,
+      onRestart: onRestart,
+      onDetach: onDetach,
+      onExitRequested: onExitRequested,
+    );
+  }
+
+  /// 监听状态
+  onStateChange(AppLifecycleState state) {
+    debugPrint('app_state：$state');
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        _beforeHideAppPlaying = playConfigOptions.playing.value;
+        if (_beforeHideAppPlaying) {
+          pause();
+          danmakuControl.resumeDanmaku();
+        }
+        break;
+
+      case AppLifecycleState.resumed:
+        if (_beforeHideAppPlaying) {
+          play();
+        }
+        break;
+    }
+  }
+
+  /// 在退出程序时，发出询问的回调（IOS、Android 都不支持）
+  /// 响应 [AppExitResponse.exit] 将继续终止，响应 [AppExitResponse.cancel] 将取消终止。
+  Future<AppExitResponse> onExitRequested() async {
+    debugPrint('---onExitRequested');
+    return AppExitResponse.exit;
+  }
+
+  /// 可见，并且可以响应用户操作时的回调
+  /// 比如应用从后台调度到前台时，在 onShow() 后面 执行
+  /// 注意：这个回调，初始化时 不执行
+  onResume() {
+    debugPrint('---onResume');
+  }
+
+  /// 可见，但无法响应用户操作时的回调
+  onInactive() {
+    debugPrint('---onInactive');
+  }
+
+  /// 隐藏时的回调
+  onHide() {
+    debugPrint('---onHide');
+  }
+
+  /// 显示时的回调，应用从后台调度到前台时
+  onShow() {
+    debugPrint('---onShow');
+  }
+
+  /// 暂停时的回调
+  onPause() {
+    debugPrint('---onPause');
+  }
+
+  /// 暂停后恢复时的回调
+  onRestart() {
+    debugPrint('---onRestart');
+  }
+
+  /// 这两个回调，不是所有平台都支持，
+
+  /// 当退出 并将所有视图与引擎分离时的回调（IOS 支持，Android 不支持）
+  onDetach() {
+    debugPrint('---onDetach');
   }
 }

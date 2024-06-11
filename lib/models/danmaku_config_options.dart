@@ -5,8 +5,10 @@ import 'package:get/get.dart';
 class DanmakuConfigOptions {
   // 弹幕源信息
   var danmakuSourceItem = DanmakuSourceItem().obs;
+  final Function(String)? updateDanmakuPathFn;
 
-  DanmakuConfigOptions({DanmakuSourceItem? danmakuSourceItem}) {
+  DanmakuConfigOptions(
+      {DanmakuSourceItem? danmakuSourceItem, this.updateDanmakuPathFn}) {
     if (danmakuSourceItem != null) {
       this.danmakuSourceItem(danmakuSourceItem);
     }
@@ -43,7 +45,7 @@ class DanmakuConfigOptions {
   var danmakuSpeed = DanmakuSpeed(min: 3.0, max: 12.0, speed: 6).obs;
   // 弹幕描边
   var danmakuStyleStrokeWidth =
-      DanmakuStyleStrokeWidth(min: 1.0, max: 10.0, strokeWidth: 5.0).obs;
+      DanmakuStyleStrokeWidth(min: 1.0, max: 10.0, strokeWidth: 1.0).obs;
 
   // 弹幕过滤类型
   var danmakuFilterType = [

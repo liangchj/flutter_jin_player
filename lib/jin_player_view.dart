@@ -25,12 +25,14 @@ class JinPlayerView extends StatefulWidget {
 class _JinPlayerViewState extends State<JinPlayerView> {
   late PlayerGetxController _playerGetxController;
   late IPlayer _player;
+  late final AppLifecycleListener appLifecycleListener;
   @override
   void initState() {
     _player = widget.player ?? FlutterVideoPlayer();
     _playerGetxController = Get.put(
         PlayerGetxController(_player, configOptions: widget.configOptions));
     widget.createdPlayerGetxController.call(_playerGetxController);
+    appLifecycleListener = _playerGetxController.getAppLifecycleListener();
     super.initState();
   }
 
@@ -43,6 +45,7 @@ class _JinPlayerViewState extends State<JinPlayerView> {
     } catch (e) {
       rethrow;
     }
+    appLifecycleListener.dispose();
     super.dispose();
   }
 
@@ -64,6 +67,8 @@ class FullScreenPlayPage extends StatefulWidget {
 class _FullScreenPlayPageState extends State<FullScreenPlayPage> {
   PlayerGetxController controller = Get.find();
 
+  late final AppLifecycleListener appLifecycleListener;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -74,7 +79,7 @@ class _FullScreenPlayPageState extends State<FullScreenPlayPage> {
       AutoOrientation.landscapeAutoMode();
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     });
-
+    appLifecycleListener = controller.getAppLifecycleListener();
     super.initState();
   }
 
@@ -83,6 +88,7 @@ class _FullScreenPlayPageState extends State<FullScreenPlayPage> {
     AutoOrientation.portraitUpMode();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+    appLifecycleListener.dispose();
     super.dispose();
   }
 
