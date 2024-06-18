@@ -9,7 +9,10 @@ class DanmakuControl {
   PlayerGetxController controller;
   IDanmaku? danmaku;
   DanmakuControl(this.controller, {IDanmaku? dnamaku}) {
-    danmaku = dnamaku ?? MyNsDanmaku(controller);
+    danmaku = dnamaku ?? MyNsDanmaku();
+    if (!danmaku!.initPlayerGetxController) {
+      dnamaku!.playerGetxController = controller;
+    }
   }
 
   // 读取弹幕文件
@@ -144,6 +147,7 @@ class DanmakuControl {
       index = danmakuAreaItemList.length - 1;
     }
     DanmakuAreaItem item = danmakuAreaItemList[index];
+    controller.logger.d("设置显示显示下标2：$index");
     danmaku?.setDanmakuArea(item.area, item.filter);
   }
 

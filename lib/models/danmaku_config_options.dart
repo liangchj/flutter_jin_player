@@ -1,16 +1,51 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_jin_player/models/danmaku_item.dart';
+import 'package:flutter_jin_player/flutter_jin_player.dart';
 import 'package:get/get.dart';
 
 class DanmakuConfigOptions {
+  IDanmaku? danmaku;
   // 弹幕源信息
   var danmakuSourceItem = DanmakuSourceItem().obs;
   final Function(String)? updateDanmakuPathFn;
 
-  DanmakuConfigOptions(
-      {DanmakuSourceItem? danmakuSourceItem, this.updateDanmakuPathFn}) {
+  DanmakuConfigOptions({
+    this.danmaku,
+    bool visible = true,
+    DanmakuSourceItem? danmakuSourceItem,
+    this.updateDanmakuPathFn,
+    DanmakuAlphaRatio? danmakuAlphaRatio,
+    DanmakuArea? danmakuArea,
+    DanmakuFontSize? danmakuFontSize,
+    DanmakuSpeed? danmakuSpeed,
+    DanmakuStyleStrokeWidth? danmakuStyleStrokeWidth,
+    List<DanmakuFilterType>? danmakuFilterTypeList,
+    double? adjustTime,
+  }) {
+    this.visible(visible);
     if (danmakuSourceItem != null) {
       this.danmakuSourceItem(danmakuSourceItem);
+    }
+    if (danmakuAlphaRatio != null) {
+      this.danmakuAlphaRatio(danmakuAlphaRatio);
+    }
+    if (danmakuArea != null) {
+      this.danmakuArea(danmakuArea);
+    }
+    if (danmakuFontSize != null) {
+      this.danmakuFontSize(danmakuFontSize);
+    }
+    if (danmakuSpeed != null) {
+      this.danmakuSpeed(danmakuSpeed);
+    }
+    if (danmakuStyleStrokeWidth != null) {
+      this.danmakuStyleStrokeWidth(danmakuStyleStrokeWidth);
+    }
+    if (danmakuFilterTypeList != null) {
+      this.danmakuFilterTypeList = danmakuFilterTypeList;
+    }
+    if (adjustTime != null) {
+      this.adjustTime(adjustTime);
+      uiShowAdjustTime(adjustTime);
     }
   }
 
@@ -48,7 +83,7 @@ class DanmakuConfigOptions {
       DanmakuStyleStrokeWidth(min: 1.0, max: 10.0, strokeWidth: 1.0).obs;
 
   // 弹幕过滤类型
-  var danmakuFilterType = [
+  var danmakuFilterTypeList = [
     DanmakuFilterType(enName: "repeat", chName: "重复", modeList: []),
     DanmakuFilterType(enName: "fixedTop", chName: "顶部", modeList: [5]),
     DanmakuFilterType(enName: "fixedBottom", chName: "底部", modeList: [4]),

@@ -59,6 +59,7 @@ class PlayerGetxController extends GetxController {
     danmakuConfigOptions =
         configOptions?.danmakuConfigOptions ?? DanmakuConfigOptions();
     logger.d("初始化，获取弹幕配置后，danmakuConfigOptions：$danmakuConfigOptions");
+
     uiControl = UIControl(this);
     danmakuControl = DanmakuControl(this);
 
@@ -309,7 +310,7 @@ class PlayerGetxController extends GetxController {
             strokeWidth: strokeWidthItem.strokeWidth));
 
     // 遍历监听弹幕过滤类型变化
-    for (var filterType in danmakuConfigOptions.danmakuFilterType) {
+    for (var filterType in danmakuConfigOptions.danmakuFilterTypeList) {
       ever(filterType.filter, (flag) {
         danmakuControl.filterDanmakuType(filterType);
       });

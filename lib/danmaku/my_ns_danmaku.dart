@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_jin_player/constants/logger_tag.dart';
-import 'package:flutter_jin_player/controller/player_getx_controller.dart';
 import 'package:flutter_jin_player/interface/idanmaku.dart';
 import 'package:flutter_jin_player/models/danmaku_item.dart';
 import 'package:get/get.dart';
@@ -12,9 +11,7 @@ import 'package:ns_danmaku/models/danmaku_option.dart';
 
 class MyNsDanmaku extends IDanmaku {
   DanmakuController? danmakuController;
-  MyNsDanmaku(PlayerGetxController playerGetxController) {
-    this.playerGetxController = playerGetxController;
-  }
+
   // key：时间；value：弹幕列表
   Map<int, List<ns_danmaku.DanmakuItem>> _danmakuItems = {};
   // 前一秒发送弹幕时间
@@ -82,7 +79,7 @@ class MyNsDanmaku extends IDanmaku {
           .danmakuConfigOptions.danmakuStyleStrokeWidth.value.strokeWidth,
     );
     for (DanmakuFilterType filterType
-        in playerGetxController.danmakuConfigOptions.danmakuFilterType) {
+        in playerGetxController.danmakuConfigOptions.danmakuFilterTypeList) {
       switch (filterType.enName) {
         case "fixedTop":
           danmakuOption =
@@ -278,6 +275,7 @@ class MyNsDanmaku extends IDanmaku {
   // 设置弹幕显示区域
   @override
   Future<bool?> setDanmakuArea(double area, bool filter) {
+    playerGetxController.logger.d("设置显示区域，area：$area，filter：$filter");
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
@@ -295,6 +293,7 @@ class MyNsDanmaku extends IDanmaku {
     DanmakuAreaItem configItem = danmakuAreaItemList[areaIndex];
 
     if (configItem.area != area || configItem.filter != filter) {
+      playerGetxController.logger.d("设置显示区域，不是通过监听变量");
       playerGetxController.danmakuConfigOptions.danmakuArea.value.areaIndex =
           areaIndex;
     }

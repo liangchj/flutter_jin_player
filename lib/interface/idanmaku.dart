@@ -3,7 +3,13 @@ import 'package:flutter_jin_player/controller/player_getx_controller.dart';
 import 'package:flutter_jin_player/models/danmaku_item.dart';
 
 abstract class IDanmaku {
-  late PlayerGetxController playerGetxController;
+  PlayerGetxController? _playerGetxController;
+  PlayerGetxController get playerGetxController => _playerGetxController!;
+  set playerGetxController(PlayerGetxController controller) =>
+      _playerGetxController = controller;
+
+  bool get initPlayerGetxController => _playerGetxController != null;
+
   // 初始化弹幕
   Widget? initDanmaku();
   // 发送弹幕

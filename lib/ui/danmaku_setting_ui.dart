@@ -76,7 +76,7 @@ class DanmakuSettingUI extends GetView<PlayerGetxController> {
                     runAlignment: WrapAlignment.center,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      ...controller.danmakuConfigOptions.danmakuFilterType
+                      ...controller.danmakuConfigOptions.danmakuFilterTypeList
                           .map((filterType) => Obx(() => InkWell(
                                 onTap: () =>
                                     filterType.filter(!filterType.filter.value),
