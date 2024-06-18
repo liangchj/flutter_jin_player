@@ -61,7 +61,8 @@ class PlayerGetxController extends GetxController {
     logger.d("初始化，获取弹幕配置后，danmakuConfigOptions：$danmakuConfigOptions");
 
     uiControl = UIControl(this);
-    danmakuControl = DanmakuControl(this);
+    danmakuControl =
+        DanmakuControl(this, dnamaku: danmakuConfigOptions.danmaku);
 
     // 初始化监听
     initEver();
