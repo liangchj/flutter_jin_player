@@ -5,6 +5,7 @@ import 'package:flutter_jin_player/widgets/my_slider_track_shape.dart';
 abstract class UIConstants {
   // ui显示时长
   static Duration uiShowDuration = const Duration(seconds: 5);
+  static Duration scrollDuration = const Duration(milliseconds: 300);
   // ui动画时长
   static Duration uiAnimationDuration = const Duration(milliseconds: 300);
   // 图标切换动画时长

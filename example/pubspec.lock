@@ -336,6 +336,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
+  scrollview_observer:
+    dependency: transitive
+    description:
+      name: scrollview_observer
+      sha256: "521329b7adfa2c1f172d7235f76e33167d3c2ea7c240aa5c281dff2b23f23407"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.20.0"
   sky_engine:
     dependency: transitive
     description: flutter

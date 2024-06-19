@@ -23,6 +23,7 @@ dependencies:
     git: 
       url: https://github.com/xiaoyaocz/flutter_ns_danmaku.git
       ref: master
+  scrollview_observer: ^1.20.0
 
 dev_dependencies:
   flutter_test:

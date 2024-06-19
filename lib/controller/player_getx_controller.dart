@@ -62,7 +62,7 @@ class PlayerGetxController extends GetxController {
 
     uiControl = UIControl(this);
     danmakuControl =
-        DanmakuControl(this, dnamaku: danmakuConfigOptions.danmaku);
+        DanmakuControl(this, danmaku: danmakuConfigOptions.danmaku);
 
     // 初始化监听
     initEver();
@@ -217,7 +217,11 @@ class PlayerGetxController extends GetxController {
     // 监听播放速度变化
     ever(playConfigOptions.playSpeed, (speed) {
       player.setPlaySpeed(speed);
-      danmakuControl.setDanmakuSpeed();
+      try {
+        danmakuControl.setDanmakuSpeed();
+      } catch (e) {
+        debugPrint("弹幕报错：$e");
+      }
     });
     // 监听视频进度跳转中
     ever(playConfigOptions.seeking, (flag) {

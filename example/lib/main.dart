@@ -82,8 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               path: "assets/video/3.mp4"),
                           index: 1),
                     ]);
-                    // c.playConfigOptions.resourceItem(ResourceItem(
-                    //     id: "ceshi", name: "测试视频", path: "assets/video/2.mp4"));
+                    c.playConfigOptions.resourceItem(ResourceItem(
+                        id: "ceshi", name: "测试视频", path: "assets/video/2.mp4"));
                   }));
                 },
                 child: const Text("直接进入大屏")),

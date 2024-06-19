@@ -8,10 +8,15 @@ import 'package:flutter_jin_player/models/danmaku_item.dart';
 class DanmakuControl {
   PlayerGetxController controller;
   IDanmaku? danmaku;
-  DanmakuControl(this.controller, {IDanmaku? dnamaku}) {
-    danmaku = dnamaku ?? MyNsDanmaku();
-    if (!danmaku!.initPlayerGetxController) {
-      dnamaku!.playerGetxController = controller;
+  DanmakuControl(this.controller, {IDanmaku? danmaku}) {
+    this.danmaku = danmaku ?? MyNsDanmaku();
+    if (!this.danmaku!.initPlayerGetxController) {
+      try {
+        this.danmaku!.playerGetxController = controller;
+      } catch (e) {
+        debugPrint(
+            "设置playerGetxController时报错：$e, danmaku: ${this.danmaku == null}, dnamaku.playerGetxController: ${this.danmaku?.playerGetxController}");
+      }
     }
   }
 
