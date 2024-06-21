@@ -3,12 +3,14 @@ import 'package:flutter_jin_player/controller/player_getx_controller.dart';
 import 'package:flutter_jin_player/models/danmaku_item.dart';
 
 abstract class IDanmaku {
-  PlayerGetxController? _playerGetxController;
-  PlayerGetxController get playerGetxController => _playerGetxController!;
-  set playerGetxController(PlayerGetxController controller) =>
-      _playerGetxController = controller;
+  // PlayerGetxController? _playerGetxController;
+  // PlayerGetxController get playerGetxController => _playerGetxController!;
+  // set playerGetxController(PlayerGetxController controller) =>
+  //     _playerGetxController = controller;
 
-  bool get initPlayerGetxController => _playerGetxController != null;
+  // bool get initPlayerGetxController => _playerGetxController != null;
+
+  PlayerGetxController? playerGetxController;
 
   // 初始化弹幕
   Widget? initDanmaku();
@@ -56,6 +58,8 @@ abstract class IDanmaku {
 
   // 调整弹幕时间
   void danmakuAdjustTime(double adjustTime);
+
+  void dispose();
 
   Color decimalToColor(int decimalColor) {
     final red = (decimalColor & 0xFF0000) >> 16;

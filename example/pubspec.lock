@@ -33,6 +33,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  canvas_danmaku:
+    dependency: transitive
+    description:
+      name: canvas_danmaku
+      sha256: d9335cef90d07fe1d916546c22960a07592dbaee30306b03baefb9e13d35a78b
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.6"
   characters:
     dependency: transitive
     description:

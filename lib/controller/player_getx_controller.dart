@@ -72,6 +72,13 @@ class PlayerGetxController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void dispose() {
+    debugPrint("gext_controller销毁");
+    danmakuControl.danmakuDispose();
+    super.dispose();
+  }
+
   // 初始化监听
   void initEver() {
     // 监听资源来源线路
@@ -360,10 +367,10 @@ class PlayerGetxController extends GetxController {
               )),
         ),
         Positioned.fill(child: Obx(() {
-          if (!danmakuConfigOptions.initialized.value ||
-              !danmakuConfigOptions.visible.value) {
-            return Container();
-          }
+          // if (!danmakuConfigOptions.initialized.value ||
+          //     !danmakuConfigOptions.visible.value) {
+          //   return Container();
+          // }
           return danmakuConfigOptions.danmakuView.value ?? Container();
         })),
         // ui
@@ -456,7 +463,10 @@ class PlayerGetxController extends GetxController {
 
   // 视频跳转
   Future<void> seekTo(Duration position) async {
-    return player.seekTo(position);
+    await player.seekTo(position);
+    danmakuControl.danmakuSeekTo(
+        playConfigOptions.positionDuration.value.inSeconds.toDouble());
+    return Future.value(null);
   }
 
   // 进入/退出全屏

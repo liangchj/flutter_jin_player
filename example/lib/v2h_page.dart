@@ -56,8 +56,8 @@ class _V2hPageState extends State<V2hPage> {
                     c.danmakuConfigOptions.visible(true);
                     c.playConfigOptions.initialized(true);
                     c.playConfigOptions.playing(true);
-                    c.danmakuConfigOptions.danmakuSourceItem(
-                        DanmakuSourceItem(path: "assets/danmaku/1.xml"));
+                    c.danmakuConfigOptions.danmakuSourceItem(DanmakuSourceItem(
+                        path: "assets/danmaku/3.xml", pathFromAssets: true));
                     timer = Timer.periodic(Duration(seconds: 1), (timer) {
                       c.playConfigOptions.positionDuration(Duration(
                           seconds: c.playConfigOptions.positionDuration.value

@@ -1,5 +1,7 @@
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_jin_player/constants/logger_tag.dart';
+import 'package:flutter_jin_player/controller/player_getx_controller.dart';
 import 'package:flutter_jin_player/interface/idanmaku.dart';
 import 'package:flutter_jin_player/models/danmaku_item.dart';
 import 'package:get/get.dart';
@@ -11,6 +13,8 @@ import 'package:ns_danmaku/models/danmaku_option.dart';
 
 class MyNsDanmaku extends IDanmaku {
   DanmakuController? danmakuController;
+
+  MyNsDanmaku({playerGetxController});
 
   // key：时间；value：弹幕列表
   Map<int, List<ns_danmaku.DanmakuItem>> _danmakuItems = {};
@@ -30,15 +34,15 @@ class MyNsDanmaku extends IDanmaku {
           color: decimalToColor(danmakuItem.color)));
       _danmakuItems[time] = items;
     }
-    playerGetxController.logger.d("读取并处理弹幕：${_danmakuItems.length}");
+    playerGetxController!.logger.d("读取并处理弹幕：${_danmakuItems.length}");
   }
 
   // 初始化弹幕
   @override
   Widget? initDanmaku() {
-    playerGetxController.logger.d("初始化弹幕");
-    updateDanmakuItems(playerGetxController.danmakuConfigOptions.danmakuList);
-    ever(playerGetxController.danmakuConfigOptions.danmakuList, (list) {
+    playerGetxController!.logger.d("初始化弹幕");
+    updateDanmakuItems(playerGetxController!.danmakuConfigOptions.danmakuList);
+    ever(playerGetxController!.danmakuConfigOptions.danmakuList, (list) {
       updateDanmakuItems(list);
     });
     return DanmakuView(
@@ -52,8 +56,8 @@ class MyNsDanmaku extends IDanmaku {
   DanmakuOption getDanmakuOption() {
     // 显示区域
     int areaIndex =
-        playerGetxController.danmakuConfigOptions.danmakuArea.value.areaIndex;
-    List<DanmakuAreaItem> danmakuAreaItemList = playerGetxController
+        playerGetxController!.danmakuConfigOptions.danmakuArea.value.areaIndex;
+    List<DanmakuAreaItem> danmakuAreaItemList = playerGetxController!
         .danmakuConfigOptions.danmakuArea.value.danmakuAreaItemList;
     double area =
         danmakuAreaItemList.isNotEmpty && danmakuAreaItemList.length > areaIndex
@@ -62,24 +66,24 @@ class MyNsDanmaku extends IDanmaku {
 
     // 弹幕速度
     double speed =
-        playerGetxController.danmakuConfigOptions.danmakuSpeed.value.speed /
-            playerGetxController.playConfigOptions.playSpeed.value;
+        playerGetxController!.danmakuConfigOptions.danmakuSpeed.value.speed /
+            playerGetxController!.playConfigOptions.playSpeed.value;
     DanmakuOption danmakuOption = DanmakuOption(
-      opacity: playerGetxController
+      opacity: playerGetxController!
               .danmakuConfigOptions.danmakuAlphaRatio.value.ratio /
           100.0,
-      fontSize:
-          playerGetxController.danmakuConfigOptions.danmakuFontSize.value.size *
-              (playerGetxController
-                      .danmakuConfigOptions.danmakuFontSize.value.ratio /
-                  100.0),
+      fontSize: playerGetxController!
+              .danmakuConfigOptions.danmakuFontSize.value.size *
+          (playerGetxController!
+                  .danmakuConfigOptions.danmakuFontSize.value.ratio /
+              100.0),
       area: area,
       duration: speed,
-      strokeWidth: playerGetxController
+      strokeWidth: playerGetxController!
           .danmakuConfigOptions.danmakuStyleStrokeWidth.value.strokeWidth,
     );
     for (DanmakuFilterType filterType
-        in playerGetxController.danmakuConfigOptions.danmakuFilterTypeList) {
+        in playerGetxController!.danmakuConfigOptions.danmakuFilterTypeList) {
       switch (filterType.enName) {
         case "fixedTop":
           danmakuOption =
@@ -96,7 +100,7 @@ class MyNsDanmaku extends IDanmaku {
           break;
       }
     }
-    playerGetxController.logger.d(
+    playerGetxController!.logger.d(
         "配置，opacity：${danmakuOption.opacity}， fontSize：${danmakuOption.fontSize}，area：${danmakuOption.area}，duration：${danmakuOption.duration}，strokeWidth：${danmakuOption.strokeWidth}，hideTop：${danmakuOption.hideTop}，hideBottom：${danmakuOption.hideBottom}，hideScroll：${danmakuOption.hideScroll}");
     return danmakuOption;
   }
@@ -128,30 +132,31 @@ class MyNsDanmaku extends IDanmaku {
   // 启动弹幕
   @override
   Future<bool?> startDanmaku({double? startTime}) {
-    playerGetxController.logger.d("进入启动弹幕方法");
-    if (!playerGetxController.danmakuConfigOptions.initialized.value ||
-        playerGetxController.danmakuConfigOptions.danmakuView.value == null) {
-      playerGetxController.danmakuControl.initDanmaku();
+    playerGetxController!.logger.d("进入启动弹幕方法");
+    if (!playerGetxController!.danmakuConfigOptions.initialized.value ||
+        playerGetxController!.danmakuConfigOptions.danmakuView.value == null) {
+      playerGetxController!.danmakuControl.initDanmaku();
     }
     if (started) {
-      playerGetxController.logger
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}startDanmaku，启动弹幕：弹幕已经启动过，无需再次启动！");
       return Future.value(true);
     }
     try {
-      playerGetxController.logger.d("启动弹幕");
+      playerGetxController!.logger.d("启动弹幕");
       listenerPlayDuration(second: startTime == null ? 0 : startTime.floor());
       // 监听播放进度改变时同步读取对应时间的弹幕
-      ever(playerGetxController.playConfigOptions.positionDuration, (duration) {
-        if (playerGetxController.playConfigOptions.playing.value &&
+      ever(playerGetxController!.playConfigOptions.positionDuration,
+          (duration) {
+        if (playerGetxController!.playConfigOptions.playing.value &&
             duration.inSeconds != prevPlaySecond) {
           listenerPlayDuration(second: duration.inSeconds);
         }
       });
       started = true;
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("启动弹幕失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("启动弹幕失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}startDanmaku，启动弹幕失败：$e");
       return Future.value(false);
     }
@@ -167,8 +172,8 @@ class MyNsDanmaku extends IDanmaku {
     try {
       danmakuController?.pause();
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("暂停弹幕失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("暂停弹幕失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}pauseDanmaku，暂停弹幕失败：$e");
       return Future.value(false);
     }
@@ -188,8 +193,8 @@ class MyNsDanmaku extends IDanmaku {
         startDanmaku();
       }
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("继续弹幕失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("继续弹幕失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}resumeDanmaku，继续弹幕失败：$e");
       return Future.value(false);
     }
@@ -199,8 +204,8 @@ class MyNsDanmaku extends IDanmaku {
   // 弹幕跳转
   @override
   Future<bool?> danmakuSeekTo(double time) {
-    if (!playerGetxController.playConfigOptions.initialized.value ||
-        playerGetxController.playConfigOptions.finished.value) {
+    if (!playerGetxController!.playConfigOptions.initialized.value ||
+        playerGetxController!.playConfigOptions.finished.value) {
       return Future.value(true);
     }
     try {
@@ -208,8 +213,8 @@ class MyNsDanmaku extends IDanmaku {
       // 添加指定时间的弹幕
       listenerPlayDuration(second: (time).floor());
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("弹幕跳转失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("弹幕跳转失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}danmakuSeekTo，弹幕跳转失败：$e");
       return Future.value(false);
     }
@@ -219,33 +224,33 @@ class MyNsDanmaku extends IDanmaku {
   // 显示/隐藏弹幕
   @override
   Future<bool?> setDanmakuVisibility(bool visible) {
-    if (!playerGetxController.playConfigOptions.initialized.value ||
-        playerGetxController.playConfigOptions.finished.value) {
+    if (!playerGetxController!.playConfigOptions.initialized.value ||
+        playerGetxController!.playConfigOptions.finished.value) {
       return Future.value(true);
     }
     try {
-      playerGetxController.danmakuConfigOptions.visible(visible);
+      playerGetxController!.danmakuConfigOptions.visible(visible);
       // 如果设置显示弹幕，且视频已经初始化未播放结束，弹幕插件未初始化
       if (visible &&
-          playerGetxController.playConfigOptions.initialized.value &&
-          !playerGetxController.playConfigOptions.finished.value &&
-          (!playerGetxController.danmakuConfigOptions.initialized.value ||
-              playerGetxController.danmakuConfigOptions.danmakuView.value ==
+          playerGetxController!.playConfigOptions.initialized.value &&
+          !playerGetxController!.playConfigOptions.finished.value &&
+          (!playerGetxController!.danmakuConfigOptions.initialized.value ||
+              playerGetxController!.danmakuConfigOptions.danmakuView.value ==
                   null)) {
-        playerGetxController.danmakuControl.initDanmaku();
+        playerGetxController!.danmakuControl.initDanmaku();
         // 视频正在播放，就需要播放弹幕
-        if (playerGetxController.playConfigOptions.playing.value) {
-          playerGetxController.danmakuControl.resumeDanmaku();
+        if (playerGetxController!.playConfigOptions.playing.value) {
+          playerGetxController!.danmakuControl.resumeDanmaku();
         }
       }
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("显示/隐藏弹幕失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("显示/隐藏弹幕失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuVisibility，显示/隐藏弹幕失败：$e");
       return Future.value(false);
     }
-    if (playerGetxController.danmakuConfigOptions.visible.value != visible) {
-      playerGetxController.danmakuConfigOptions.visible(visible);
+    if (playerGetxController!.danmakuConfigOptions.visible.value != visible) {
+      playerGetxController!.danmakuConfigOptions.visible(visible);
     }
     return Future.value(true);
   }
@@ -258,15 +263,15 @@ class MyNsDanmaku extends IDanmaku {
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(opacity: danmakuAlphaRatio / 100.0));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置弹幕透明度失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置弹幕透明度失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuAlphaRatio，设置弹幕透明度失败：$e");
       return Future.value(false);
     }
-    if (playerGetxController
+    if (playerGetxController!
             .danmakuConfigOptions.danmakuAlphaRatio.value.ratio !=
         danmakuAlphaRatio) {
-      playerGetxController.danmakuConfigOptions.danmakuAlphaRatio.value.ratio =
+      playerGetxController!.danmakuConfigOptions.danmakuAlphaRatio.value.ratio =
           danmakuAlphaRatio;
     }
     return Future.value(true);
@@ -275,26 +280,26 @@ class MyNsDanmaku extends IDanmaku {
   // 设置弹幕显示区域
   @override
   Future<bool?> setDanmakuArea(double area, bool filter) {
-    playerGetxController.logger.d("设置显示区域，area：$area，filter：$filter");
+    playerGetxController!.logger.d("设置显示区域，area：$area，filter：$filter");
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(area: area));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置弹幕显示区域失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置弹幕显示区域失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuArea，设置弹幕显示区域失败：$e");
       return Future.value(false);
     }
     int areaIndex =
-        playerGetxController.danmakuConfigOptions.danmakuArea.value.areaIndex;
-    List<DanmakuAreaItem> danmakuAreaItemList = playerGetxController
+        playerGetxController!.danmakuConfigOptions.danmakuArea.value.areaIndex;
+    List<DanmakuAreaItem> danmakuAreaItemList = playerGetxController!
         .danmakuConfigOptions.danmakuArea.value.danmakuAreaItemList;
     DanmakuAreaItem configItem = danmakuAreaItemList[areaIndex];
 
     if (configItem.area != area || configItem.filter != filter) {
-      playerGetxController.logger.d("设置显示区域，不是通过监听变量");
-      playerGetxController.danmakuConfigOptions.danmakuArea.value.areaIndex =
+      playerGetxController!.logger.d("设置显示区域，不是通过监听变量");
+      playerGetxController!.danmakuConfigOptions.danmakuArea.value.areaIndex =
           areaIndex;
     }
     return Future.value(true);
@@ -306,18 +311,19 @@ class MyNsDanmaku extends IDanmaku {
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption()).copyWith(
-              fontSize: playerGetxController
+              fontSize: playerGetxController!
                       .danmakuConfigOptions.danmakuFontSize.value.size *
                   (fontSizeRatio / 100)));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置字体大小失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置字体大小失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuFontSize，设置字体大小失败：$e");
       return Future.value(false);
     }
-    if (playerGetxController.danmakuConfigOptions.danmakuFontSize.value.ratio !=
+    if (playerGetxController!
+            .danmakuConfigOptions.danmakuFontSize.value.ratio !=
         fontSizeRatio) {
-      playerGetxController.danmakuConfigOptions.danmakuFontSize.value.ratio =
+      playerGetxController!.danmakuConfigOptions.danmakuFontSize.value.ratio =
           fontSizeRatio;
     }
     return Future.value(true);
@@ -331,15 +337,15 @@ class MyNsDanmaku extends IDanmaku {
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(strokeWidth: strokeWidth));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置描边失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置描边失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuStyleStrokeWidth，设置描边失败：$e");
       return Future.value(false);
     }
-    if (playerGetxController
+    if (playerGetxController!
             .danmakuConfigOptions.danmakuStyleStrokeWidth.value.strokeWidth !=
         strokeWidth) {
-      playerGetxController.danmakuConfigOptions.danmakuStyleStrokeWidth.value
+      playerGetxController!.danmakuConfigOptions.danmakuStyleStrokeWidth.value
           .strokeWidth = strokeWidth;
     }
     return Future.value(true);
@@ -353,14 +359,14 @@ class MyNsDanmaku extends IDanmaku {
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(duration: speed / playSpeed));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置滚动速度失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置滚动速度失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuSpeed，设置滚动速度失败：$e");
       return Future.value(false);
     }
-    if (playerGetxController.danmakuConfigOptions.danmakuSpeed.value.speed !=
+    if (playerGetxController!.danmakuConfigOptions.danmakuSpeed.value.speed !=
         speed) {
-      playerGetxController.danmakuConfigOptions.danmakuSpeed.value.speed =
+      playerGetxController!.danmakuConfigOptions.danmakuSpeed.value.speed =
           speed;
     }
     return Future.value(true);
@@ -380,8 +386,8 @@ class MyNsDanmaku extends IDanmaku {
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(hideTop: visible));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置是否显示顶部固定弹幕失败：$e");
-      playerGetxController.logger.d(
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示顶部固定弹幕失败：$e");
+      playerGetxController!.logger.d(
           "${LoggerTag.danmakuLog}setFixedTopDanmakuVisibility，设置是否显示顶部固定弹幕失败：$e");
       return Future.value(false);
     }
@@ -396,8 +402,8 @@ class MyNsDanmaku extends IDanmaku {
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(hideScroll: visible));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置是否显示滚动弹幕失败：$e");
-      playerGetxController.logger
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示滚动弹幕失败：$e");
+      playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setRollDanmakuVisibility，设置是否显示滚动弹幕失败：$e");
       return Future.value(false);
     }
@@ -412,8 +418,8 @@ class MyNsDanmaku extends IDanmaku {
           (danmakuController?.option ?? getDanmakuOption())
               .copyWith(hideBottom: visible));
     } catch (e) {
-      playerGetxController.danmakuConfigOptions.errorMsg("设置是否显示底部固定弹幕失败：$e");
-      playerGetxController.logger.d(
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示底部固定弹幕失败：$e");
+      playerGetxController!.logger.d(
           "${LoggerTag.danmakuLog}setFixedBottomDanmakuVisibility，设置是否显示底部固定弹幕失败：$e");
       return Future.value(false);
     }
@@ -445,6 +451,8 @@ class MyNsDanmaku extends IDanmaku {
   // 调整弹幕时间
   @override
   void danmakuAdjustTime(double adjustTime) {}
+  @override
+  void dispose() {}
 
   ns_danmaku.DanmakuItemType getDanmakuItemType(int mode) {
     ns_danmaku.DanmakuItemType type = ns_danmaku.DanmakuItemType.scroll;
@@ -458,11 +466,11 @@ class MyNsDanmaku extends IDanmaku {
 
   // 跟着视频发送弹幕
   listenerPlayDuration({required int second, double? adjustTime}) {
-    playerGetxController.logger.d(
-        "触发添加弹幕：${playerGetxController.danmakuConfigOptions.initialized.value}, ${playerGetxController.danmakuConfigOptions.visible.value}, ${playerGetxController.danmakuConfigOptions.danmakuView.value}");
+    playerGetxController!.logger.d(
+        "触发添加弹幕：${playerGetxController!.danmakuConfigOptions.initialized.value}, ${playerGetxController!.danmakuConfigOptions.visible.value}, ${playerGetxController!.danmakuConfigOptions.danmakuView.value}");
     int addTime = second +
         (adjustTime ??
-                playerGetxController.danmakuConfigOptions.adjustTime.value)
+                playerGetxController!.danmakuConfigOptions.adjustTime.value)
             .floor();
     List<ns_danmaku.DanmakuItem>? danmuItems = _danmakuItems[addTime];
     if (danmuItems != null && danmuItems.isNotEmpty) {

@@ -1,3 +1,4 @@
+import 'package:example/danmaku_canvas_test.dart';
 import 'package:example/v2h_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jin_player/danmaku/parse/parse_bilibili_danmaku.dart';
@@ -94,8 +95,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Text("小屏转大屏")),
             TextButton(
                 onPressed: () {
+                  Get.to(DanmakuCanvasTest());
+                },
+                child: const Text("DanmakuCanvasTest")),
+            TextButton(
+                onPressed: () {
                   ParseBilibiliDanmaku()
-                      .pasrseBilibiliDanmakuByXml("assets/danmaku/1.xml",
+                      .pasrseBilibiliDanmakuByXml("assets/danmaku/2.xml",
                           fromAssets: true)
                       .then((List<DanmakuItem> list) {
                     print("读取的弹幕结果：${list.length}");

@@ -10,7 +10,7 @@ class DanmakuControl {
   IDanmaku? danmaku;
   DanmakuControl(this.controller, {IDanmaku? danmaku}) {
     this.danmaku = danmaku ?? MyNsDanmaku();
-    if (!this.danmaku!.initPlayerGetxController) {
+    if (this.danmaku!.playerGetxController == null) {
       try {
         this.danmaku!.playerGetxController = controller;
       } catch (e) {
@@ -184,5 +184,11 @@ class DanmakuControl {
   }
 
   // 根据类型过滤弹幕
-  void filterDanmakuType(DanmakuFilterType filterType) {}
+  void filterDanmakuType(DanmakuFilterType filterType) {
+    danmaku?.filterDanmakuType(filterType);
+  }
+
+  void danmakuDispose() {
+    danmaku?.dispose();
+  }
 }
