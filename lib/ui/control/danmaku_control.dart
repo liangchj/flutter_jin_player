@@ -98,9 +98,9 @@ class DanmakuControl {
     // }
     controller.danmakuConfigOptions.visible(true);
     danmaku?.setDanmakuVisibility(true);
-    // danmaku?.startDanmaku(
-    //     startTime:
-    //         controller.playConfigOptions.positionDuration.value.inMilliseconds);
+    danmaku?.startDanmaku(
+        startTime:
+            controller.playConfigOptions.positionDuration.value.inMilliseconds);
   }
 
   // 继续播放弹幕

@@ -32,7 +32,9 @@ class MyDanmakuView extends IDanmaku {
             loadDanmakuByPath(
                 playerGetxController!
                     .danmakuConfigOptions.danmakuSourceItem.value.path!,
-                fromAssets: true,
+                fromAssets: playerGetxController!.danmakuConfigOptions
+                        .danmakuSourceItem.value.pathFromAssets ??
+                    false,
                 start: start,
                 startMs: playerGetxController!
                     .playConfigOptions.positionDuration.value.inMilliseconds);
@@ -109,6 +111,7 @@ class MyDanmakuView extends IDanmaku {
   void loadDanmakuByPath(String path,
       {bool fromAssets = false, bool start = false, int? startMs}) {
     try {
+      debugPrint("读取弹幕path：$path,fromAssets：$fromAssets");
       _loadedByPath = false;
       danmakuController?.onDanmakuFileParse(
           path: path,
@@ -163,6 +166,22 @@ class MyDanmakuView extends IDanmaku {
     //     playerGetxController!.danmakuConfigOptions.danmakuView.value == null) {
     //   playerGetxController!.danmakuControl.initDanmaku();
     // }
+
+    if (playerGetxController!
+                .danmakuConfigOptions.danmakuSourceItem.value.path !=
+            null &&
+        playerGetxController!
+            .danmakuConfigOptions.danmakuSourceItem.value.path!.isNotEmpty &&
+        !_loadedByPath) {
+      loadDanmakuByPath(
+          playerGetxController!
+              .danmakuConfigOptions.danmakuSourceItem.value.path!,
+          start: true,
+          startMs: playerGetxController!
+              .playConfigOptions.positionDuration.value.inMilliseconds);
+      return Future.value(true);
+    }
+
     if (danmakuController != null && danmakuController!.running) {
       playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}startDanmaku，启动弹幕：弹幕已经启动过，无需再次启动！");
@@ -230,7 +249,7 @@ class MyDanmakuView extends IDanmaku {
     try {
       danmakuController?.clear();
       danmakuController?.pause();
-      danmakuController?.start(ms: time);
+      startDanmaku(startTime: time);
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("弹幕跳转失败：$e");
       playerGetxController!.logger
@@ -516,7 +535,17 @@ class MyDanmakuView extends IDanmaku {
 
   // 调整弹幕时间
   @override
-  void danmakuAdjustTime(double adjustTime) {}
+  void danmakuAdjustTime(int adjustTime) {
+    try {
+      danmakuController?.onUpdateOption(
+          (danmakuController?.option ?? getDanmakuOption())
+              .copyWith(adjustTimeMs: adjustTime));
+    } catch (e) {
+      playerGetxController!.danmakuConfigOptions.errorMsg("调整弹幕时间失败：$e");
+      playerGetxController!.logger
+          .d("${LoggerTag.danmakuLog}danmakuAdjustTime，调整弹幕时间失败：$e");
+    }
+  }
 
   @override
   void dispose() {}

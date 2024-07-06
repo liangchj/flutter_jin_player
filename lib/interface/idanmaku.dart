@@ -55,7 +55,7 @@ abstract class IDanmaku {
   void filterDanmakuType(DanmakuFilterType filterType);
 
   // 调整弹幕时间
-  void danmakuAdjustTime(double adjustTime);
+  void danmakuAdjustTime(int adjustTime);
 
   void dispose();
 
