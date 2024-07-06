@@ -67,8 +67,9 @@ class PlayerGetxController extends GetxController {
     // 初始化监听
     initEver();
     overlayUI(const Positioned.fill(child: PlayerUI()));
-
+    // danmakuControl.initDanmaku();
     createOverlayUI();
+
     super.onInit();
   }
 
@@ -145,15 +146,16 @@ class PlayerGetxController extends GetxController {
     // 视频资源发生变化
     ever(playConfigOptions.resourceItem, (resourceItem) {
       changeVideoUrl();
-      danmakuControl.clearDanmaku();
+      // danmakuControl.clearDanmaku();
+      danmakuControl.danmakuDispose();
       danmakuConfigOptions.danmakuList.clear();
       danmakuConfigOptions.danmakuList.refresh();
       danmakuConfigOptions.danmakuSourceItem(DanmakuSourceItem());
       danmakuConfigOptions.danmakuSourceItem.value.addDanmakuList?.clear();
       danmakuConfigOptions.danmakuSourceItem.value.read = false;
       danmakuConfigOptions.danmakuSourceItem.refresh();
-      // danmakuControl.initDanmaku();
       // danmakuControl.readDanmakuListByFilePath();
+      danmakuControl.danmakuDispose();
       logger.d("当前视频资源变化：弹幕：${resourceItem.danmakuSourceItem?.path}");
       if (resourceItem.danmakuSourceItem != null) {
         logger.d("当前视频资源变化，且有弹幕信息");
@@ -233,7 +235,8 @@ class PlayerGetxController extends GetxController {
     // 监听视频进度跳转中
     ever(playConfigOptions.seeking, (flag) {
       if (flag) {
-        danmakuControl.clearDanmaku();
+        // danmakuControl.clearDanmaku();
+        danmakuControl.pauseDanmaku();
       }
     });
 
@@ -289,7 +292,8 @@ class PlayerGetxController extends GetxController {
       }
       if (item.path != null && item.path!.isNotEmpty && !item.read) {
         logger.d("弹幕源变化，路径不为空：${item.path}");
-        danmakuControl.readDanmakuListByFilePath();
+        // danmakuControl.readDanmakuListByFilePath();
+        danmakuControl.initDanmaku();
       }
       if (danmakuConfigOptions.danmakuSourceItem.value.addDanmakuList != null &&
           danmakuConfigOptions
@@ -332,14 +336,11 @@ class PlayerGetxController extends GetxController {
       danmakuConfigOptions.uiShowAdjustTime(time);
       // 在读取发送弹幕时已经自动将调整时间算上，因此跳转只需要跳转至当前播放时间即可
       danmakuControl.danmakuSeekTo(
-          playConfigOptions.positionDuration.value.inSeconds.toDouble());
+          playConfigOptions.positionDuration.value.inMilliseconds);
     });
 
     ever(danmakuConfigOptions.visible, (visible) {
       if (visible) {
-        if (!danmakuControl.danmakuViewAvailable()) {
-          danmakuControl.initDanmaku();
-        }
         danmakuControl.setDanmakuVisibility(true);
         if (playConfigOptions.initialized.value &&
             playConfigOptions.playing.value &&
@@ -367,10 +368,6 @@ class PlayerGetxController extends GetxController {
               )),
         ),
         Positioned.fill(child: Obx(() {
-          // if (!danmakuConfigOptions.initialized.value ||
-          //     !danmakuConfigOptions.visible.value) {
-          //   return Container();
-          // }
           return danmakuConfigOptions.danmakuView.value ?? Container();
         })),
         // ui
@@ -464,8 +461,8 @@ class PlayerGetxController extends GetxController {
   // 视频跳转
   Future<void> seekTo(Duration position) async {
     await player.seekTo(position);
-    danmakuControl.danmakuSeekTo(
-        playConfigOptions.positionDuration.value.inSeconds.toDouble());
+    danmakuControl
+        .danmakuSeekTo(playConfigOptions.positionDuration.value.inMilliseconds);
     return Future.value(null);
   }
 

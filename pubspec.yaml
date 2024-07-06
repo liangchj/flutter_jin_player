@@ -18,13 +18,10 @@ dependencies:
   video_player: ^2.8.6
   wakelock_plus: ^1.2.5
   xml: ^6.5.0
-  # 请使用Git引用此包
-  ns_danmaku: 
-    git: 
-      url: https://github.com/xiaoyaocz/flutter_ns_danmaku.git
-      ref: master
   scrollview_observer: ^1.20.0
-  canvas_danmaku: ^0.1.6
+  render_object_danmaku: 
+    git:
+      url: https://github.com/liangchj/render_object_danmaku.git
 
 dev_dependencies:
   flutter_test:

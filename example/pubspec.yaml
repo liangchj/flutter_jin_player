@@ -39,6 +39,7 @@ dependencies:
   flutter_jin_player:
     path: ../
   get: ^4.6.6
+  fps_widget: ^1.0.1+2
 
 dev_dependencies:
   flutter_test:

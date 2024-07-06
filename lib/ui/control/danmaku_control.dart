@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_jin_player/controller/player_getx_controller.dart';
-import 'package:flutter_jin_player/danmaku/my_ns_danmaku.dart';
-import 'package:flutter_jin_player/danmaku/parse/parse_bilibili_danmaku.dart';
+import 'package:flutter_jin_player/danmaku/my_danmaku_view.dart';
 import 'package:flutter_jin_player/interface/idanmaku.dart';
 import 'package:flutter_jin_player/models/danmaku_item.dart';
 
@@ -9,7 +8,7 @@ class DanmakuControl {
   PlayerGetxController controller;
   IDanmaku? danmaku;
   DanmakuControl(this.controller, {IDanmaku? danmaku}) {
-    this.danmaku = danmaku ?? MyNsDanmaku();
+    this.danmaku = danmaku ?? MyDanmakuView();
     if (this.danmaku!.playerGetxController == null) {
       try {
         this.danmaku!.playerGetxController = controller;
@@ -28,23 +27,30 @@ class DanmakuControl {
             .danmakuConfigOptions.danmakuSourceItem.value.path!.isNotEmpty &&
         !controller.danmakuConfigOptions.danmakuSourceItem.value.read) {
       controller.danmakuConfigOptions.danmakuSourceItem.value.read = true;
-      try {
-        ParseBilibiliDanmaku()
-            .pasrseBilibiliDanmakuByXml(
-                controller.danmakuConfigOptions.danmakuSourceItem.value.path!,
-                fromAssets: controller.danmakuConfigOptions.danmakuSourceItem
-                    .value.pathFromAssets!)
-            .then((List<DanmakuItem> list) {
-          if (list.isNotEmpty) {
-            controller.danmakuConfigOptions.danmakuList.addAll(list);
-          }
+      danmaku?.loadDanmakuByPath(
+          controller.danmakuConfigOptions.danmakuSourceItem.value.path!,
+          fromAssets: controller
+              .danmakuConfigOptions.danmakuSourceItem.value.pathFromAssets!,
+          start: controller.playConfigOptions.playing.value,
+          startMs: controller
+              .playConfigOptions.positionDuration.value.inMilliseconds);
+      // try {
+      //   ParseBilibiliDanmaku()
+      //       .pasrseBilibiliDanmakuByXml(
+      //           controller.danmakuConfigOptions.danmakuSourceItem.value.path!,
+      //           fromAssets: controller.danmakuConfigOptions.danmakuSourceItem
+      //               .value.pathFromAssets!)
+      //       .then((List<DanmakuItem> list) {
+      //     if (list.isNotEmpty) {
+      //       controller.danmakuConfigOptions.danmakuList.addAll(list);
+      //     }
 
-          controller.logger.d(
-              "读取弹幕文件内容：${controller.danmakuConfigOptions.danmakuList.length}");
-        });
-      } catch (e) {
-        controller.danmakuConfigOptions.errorMsg("读取弹幕文件出错：$e");
-      }
+      //     controller.logger.d(
+      //         "读取弹幕文件内容：${controller.danmakuConfigOptions.danmakuList.length}");
+      //   });
+      // } catch (e) {
+      //   controller.danmakuConfigOptions.errorMsg("读取弹幕文件出错：$e");
+      // }
     }
   }
 
@@ -60,7 +66,8 @@ class DanmakuControl {
     controller.danmakuConfigOptions.danmakuView(null);
     controller.danmakuConfigOptions.danmakuView.refresh();
     try {
-      Widget? view = danmaku?.initDanmaku();
+      Widget? view = danmaku?.initDanmaku(
+          start: controller.playConfigOptions.playing.value);
       if (view != null) {
         controller.danmakuConfigOptions.initialized(true);
         controller.danmakuConfigOptions.errorMsg("初始化弹幕view");
@@ -85,16 +92,15 @@ class DanmakuControl {
     if (!controller.playConfigOptions.playing.value) {
       return;
     }
-    if (!danmakuViewAvailable()) {
-      // 初始化弹幕库
-      initDanmaku();
-    }
-    controller.danmakuConfigOptions.initialized(true);
+    // if (!danmakuViewAvailable()) {
+    //   // 初始化弹幕库
+    //   initDanmaku(start: true);
+    // }
     controller.danmakuConfigOptions.visible(true);
     danmaku?.setDanmakuVisibility(true);
-    danmaku?.startDanmaku(
-        startTime: controller.playConfigOptions.positionDuration.value.inSeconds
-            .toDouble());
+    // danmaku?.startDanmaku(
+    //     startTime:
+    //         controller.playConfigOptions.positionDuration.value.inMilliseconds);
   }
 
   // 继续播放弹幕
@@ -120,19 +126,19 @@ class DanmakuControl {
 
   // 显示或隐藏弹幕
   void setDanmakuVisibility(bool visible) {
-    if (visible) {
-      if (!danmakuViewAvailable()) {
-        // 初始化弹幕库
-        initDanmaku();
-      }
-    }
+    // if (visible) {
+    //   if (!danmakuViewAvailable()) {
+    //     // 初始化弹幕库
+    //     initDanmaku();
+    //   }
+    // }
     controller.danmakuConfigOptions.visible(visible);
     danmaku?.setDanmakuVisibility(visible);
   }
 
   // 弹幕调整
-  void danmakuSeekTo(double second) {
-    danmaku?.danmakuSeekTo(second);
+  void danmakuSeekTo(int ms) {
+    danmaku?.danmakuSeekTo(ms);
   }
 
   // 设置弹幕透明的（百分比）
@@ -175,7 +181,7 @@ class DanmakuControl {
   void setDanmakuSpeed({double? second}) {
     second = second ?? controller.danmakuConfigOptions.danmakuSpeed.value.speed;
     danmaku?.setDanmakuSpeed(
-        second, controller.playConfigOptions.playSpeed.value);
+        (second * 1000).floor(), controller.playConfigOptions.playSpeed.value);
   }
 
   // 清空弹幕
@@ -189,6 +195,10 @@ class DanmakuControl {
   }
 
   void danmakuDispose() {
+    controller.danmakuConfigOptions.initialized(false);
+    controller.danmakuConfigOptions.danmakuView(null);
+    controller.danmakuConfigOptions.danmakuView(null);
+    controller.danmakuConfigOptions.danmakuView.refresh();
     danmaku?.dispose();
   }
 }

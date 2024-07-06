@@ -9,7 +9,7 @@ class BackgroundEventUI extends GetView<PlayerGetxController> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+      behavior: HitTestBehavior.opaque,
       onTap: controller.uiControl.toggleBackground,
       onHorizontalDragStart: (DragStartDetails details) {
         if (!controller.uiConfigOptions.uiLocked.value) {

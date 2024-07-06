@@ -33,14 +33,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
-  canvas_danmaku:
-    dependency: transitive
-    description:
-      name: canvas_danmaku
-      sha256: d9335cef90d07fe1d916546c22960a07592dbaee30306b03baefb9e13d35a78b
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.6"
   characters:
     dependency: transitive
     description:
@@ -151,6 +143,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fps_widget:
+    dependency: "direct main"
+    description:
+      name: fps_widget
+      sha256: ca62e76a24062157bccaea5d1561bdee3ef2bb109d68401626d8a9d6aaa52d52
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1+2"
   get:
     dependency: "direct main"
     description:
@@ -247,15 +247,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.12.0"
-  ns_danmaku:
-    dependency: transitive
-    description:
-      path: "."
-      ref: master
-      resolved-ref: "6d581080ff67cf7fe830379ef497356c20a12a7a"
-      url: "https://github.com/xiaoyaocz/flutter_ns_danmaku.git"
-    source: git
-    version: "0.0.8"
   package_info_plus:
     dependency: transitive
     description:
@@ -296,6 +287,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.8"
+  render_object_danmaku:
+    dependency: transitive
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "0ad70f54a08665878da6a96cfa8dc4420700b8eb"
+      url: "https://github.com/liangchj/render_object_danmaku.git"
+    source: git
+    version: "0.0.1"
   screen_brightness:
     dependency: transitive
     description:

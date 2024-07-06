@@ -70,7 +70,7 @@ class DanmakuConfigOptions {
     DanmakuAreaItem(area: 0.75, name: "3/4屏"),
     DanmakuAreaItem(area: 1.0, name: "满屏"),
     DanmakuAreaItem(area: 1.0, name: "无限", filter: false),
-  ], areaIndex: 1)
+  ], areaIndex: 3)
       .obs;
 
   // 弹幕字体大小，显示百分比， 区间[20, 200]

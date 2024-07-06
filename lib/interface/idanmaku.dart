@@ -3,29 +3,27 @@ import 'package:flutter_jin_player/controller/player_getx_controller.dart';
 import 'package:flutter_jin_player/models/danmaku_item.dart';
 
 abstract class IDanmaku {
-  // PlayerGetxController? _playerGetxController;
-  // PlayerGetxController get playerGetxController => _playerGetxController!;
-  // set playerGetxController(PlayerGetxController controller) =>
-  //     _playerGetxController = controller;
-
-  // bool get initPlayerGetxController => _playerGetxController != null;
-
   PlayerGetxController? playerGetxController;
 
   // 初始化弹幕
-  Widget? initDanmaku();
+  Widget? initDanmaku({bool start = false});
+
+  // 根据文件路径加载弹幕
+  void loadDanmakuByPath(String path,
+      {bool fromAssets = false, bool start = false, int? startMs});
+
   // 发送弹幕
   void sendDanmaku(DanmakuItem danmakuItem);
   // 发送弹幕列表
   void sendDanmakuList(List<DanmakuItem> danmakuItemList);
-  // 启动弹幕
-  Future<bool?> startDanmaku({double? startTime});
+  // 启动弹幕（毫秒）
+  Future<bool?> startDanmaku({int? startTime});
   // 暂停弹幕
   Future<bool?> pauseDanmaku();
   // 继续弹幕
   Future<bool?> resumeDanmaku();
-  // 弹幕跳转
-  Future<bool?> danmakuSeekTo(double time);
+  // 弹幕跳转（毫秒）
+  Future<bool?> danmakuSeekTo(int time);
   // 显示/隐藏弹幕
   Future<bool?> setDanmakuVisibility(bool visible);
   // 设置弹幕透明的（百分比）
@@ -38,7 +36,7 @@ abstract class IDanmaku {
   // 设置描边
   Future<bool?> setDanmakuStyleStrokeWidth(double strokeWidth);
   // 设置滚动速度
-  Future<bool?> setDanmakuSpeed(double speed, double playSpeed);
+  Future<bool?> setDanmakuSpeed(int durationMs, double playSpeed);
   // 设置是否启用合并重复弹幕
   Future<bool?> setDuplicateMergingEnabled(bool flag);
   // 设置是否显示顶部固定弹幕

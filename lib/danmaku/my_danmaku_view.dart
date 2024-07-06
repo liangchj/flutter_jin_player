@@ -1,63 +1,50 @@
-import 'dart:async';
-
-import 'package:canvas_danmaku/canvas_danmaku.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_jin_player/constants/logger_tag.dart';
 import 'package:flutter_jin_player/flutter_jin_player.dart';
-import 'package:flutter_jin_player/models/danmaku_item.dart' as my_app;
-import 'package:get/get.dart';
+import 'package:render_object_danmaku/render_object_danmaku.dart'
+    as danmaku_package;
 
-class MyCanvasDanmaku extends IDanmaku {
-  DanmakuController? danmakuController;
+class MyDanmakuView extends IDanmaku {
+  danmaku_package.DanmakuController? danmakuController;
 
-  MyCanvasDanmaku({playerGetxController});
+  MyDanmakuView({playerGetxController});
 
-  bool started = false;
-
-  // 第一层 key：时间（秒）；value：1秒内弹幕列表
-  final Map<int, List<DanmakuContentItem>> _danmakuItems = {};
-
-  // 前一秒发送弹幕时间
-  int prevPlaySecond = -1;
-
-  void updateDanmakuItems(List<my_app.DanmakuItem> danmakuList) {
-    playerGetxController!.logger.d("进入读取并处理弹幕，弹幕数量：${danmakuList.length}");
-    _danmakuItems.clear();
-    for (my_app.DanmakuItem danmakuItem in danmakuList) {
-      double second = danmakuItem.time;
-      int secondInt = second.floor();
-      List<DanmakuContentItem> secondDanmakuItems =
-          _danmakuItems[secondInt] ?? [];
-
-      secondDanmakuItems.add(DanmakuContentItem(
-        danmakuItem.content,
-        color: decimalToColor(danmakuItem.color),
-        type: getDanmakuItemType(danmakuItem.mode),
-      ));
-      _danmakuItems[secondInt] = secondDanmakuItems;
-    }
-    playerGetxController!.logger.d("读取并处理弹幕：${_danmakuItems.length}");
-  }
+  bool _loadedByPath = false;
 
   // 初始化弹幕
   @override
-  Widget? initDanmaku() {
+  Widget? initDanmaku({bool start = false}) {
     playerGetxController!.logger.d("初始化弹幕");
-    updateDanmakuItems(playerGetxController!.danmakuConfigOptions.danmakuList);
-    ever(playerGetxController!.danmakuConfigOptions.danmakuList, (list) {
-      updateDanmakuItems(list);
-    });
 
-    return DanmakuScreen(
-      createdController: (DanmakuController e) {
+    return danmaku_package.DanmakuView(
+      createdController: (danmaku_package.DanmakuController e) {
         danmakuController = e;
+        if (start) {
+          if (playerGetxController!
+                      .danmakuConfigOptions.danmakuSourceItem.value.path ==
+                  null ||
+              playerGetxController!
+                  .danmakuConfigOptions.danmakuSourceItem.value.path!.isEmpty) {
+            danmakuController?.start(
+                ms: playerGetxController!
+                    .playConfigOptions.positionDuration.value.inMilliseconds);
+          } else {
+            loadDanmakuByPath(
+                playerGetxController!
+                    .danmakuConfigOptions.danmakuSourceItem.value.path!,
+                fromAssets: true,
+                start: start,
+                startMs: playerGetxController!
+                    .playConfigOptions.positionDuration.value.inMilliseconds);
+          }
+        }
       },
       option: getDanmakuOption(),
     );
   }
 
   // 获取弹幕配置
-  DanmakuOption getDanmakuOption() {
+  danmaku_package.DanmakuOption getDanmakuOption() {
     // 显示区域
     int areaIndex =
         playerGetxController!.danmakuConfigOptions.danmakuArea.value.areaIndex;
@@ -71,8 +58,8 @@ class MyCanvasDanmaku extends IDanmaku {
     // 弹幕速度
     double speed =
         playerGetxController!.danmakuConfigOptions.danmakuSpeed.value.speed /
-            playerGetxController!.playConfigOptions.playSpeed.value;
-    DanmakuOption danmakuOption = DanmakuOption(
+            (playerGetxController!.playConfigOptions.playSpeed.value * 1.0);
+    danmaku_package.DanmakuOption danmakuOption = danmaku_package.DanmakuOption(
       opacity: playerGetxController!
               .danmakuConfigOptions.danmakuAlphaRatio.value.ratio /
           100.0,
@@ -81,82 +68,109 @@ class MyCanvasDanmaku extends IDanmaku {
           (playerGetxController!
                   .danmakuConfigOptions.danmakuFontSize.value.ratio /
               100.0),
-      area: 1.0,
-      duration: speed.round(),
-      showStroke: playerGetxController!
-              .danmakuConfigOptions.danmakuStyleStrokeWidth.value.strokeWidth >
-          0,
-      massiveMode: danmakuAreaItemList.isNotEmpty &&
-              danmakuAreaItemList.length > areaIndex
-          ? danmakuAreaItemList[areaIndex].filter
-          : false,
+      area: area,
+      duration: (speed * 1000).floor(),
+      strokeWidth: playerGetxController!
+          .danmakuConfigOptions.danmakuStyleStrokeWidth.value.strokeWidth,
     );
     for (DanmakuFilterType filterType
         in playerGetxController!.danmakuConfigOptions.danmakuFilterTypeList) {
       switch (filterType.enName) {
         case "fixedTop":
           danmakuOption =
-              danmakuOption.copyWith(hideTop: filterType.filter.value);
+              danmakuOption.copyWith(filterTop: filterType.filter.value);
           break;
 
         case "fixedBottom":
           danmakuOption =
-              danmakuOption.copyWith(hideBottom: filterType.filter.value);
+              danmakuOption.copyWith(filterBottom: filterType.filter.value);
           break;
         case "scroll":
           danmakuOption =
-              danmakuOption.copyWith(hideScroll: filterType.filter.value);
+              danmakuOption.copyWith(filterScroll: filterType.filter.value);
+          break;
+        case "color":
+          danmakuOption =
+              danmakuOption.copyWith(filterColour: filterType.filter.value);
+          break;
+        case "repeat":
+          danmakuOption =
+              danmakuOption.copyWith(filterRepeat: filterType.filter.value);
           break;
       }
     }
     playerGetxController!.logger.d(
-        "配置，opacity：${danmakuOption.opacity}， fontSize：${danmakuOption.fontSize}，area：${danmakuOption.area}，duration：${danmakuOption.duration}，showStroke：${danmakuOption.showStroke}，hideTop：${danmakuOption.hideTop}，hideBottom：${danmakuOption.hideBottom}，hideScroll：${danmakuOption.hideScroll}");
+        "配置，opacity：${danmakuOption.opacity}， fontSize：${danmakuOption.fontSize}，area：${danmakuOption.area}，duration：${danmakuOption.duration}，showStroke：${danmakuOption.strokeWidth}，hideTop：${danmakuOption.filterTop}，hideBottom：${danmakuOption.filterBottom}，hideScroll：${danmakuOption.filterScroll}");
     return danmakuOption;
+  }
+
+  // 根据文件路径加载弹幕
+  @override
+  void loadDanmakuByPath(String path,
+      {bool fromAssets = false, bool start = false, int? startMs}) {
+    try {
+      _loadedByPath = false;
+      danmakuController?.onDanmakuFileParse(
+          path: path,
+          fromAssets: fromAssets,
+          danmakuParser: danmaku_package.BiliDanmakuParser(),
+          loaded: (flag) {
+            _loadedByPath = flag;
+            if (_loadedByPath) {
+              if (start) {
+                startDanmaku(startTime: startMs);
+              }
+            }
+          });
+    } catch (e) {
+      playerGetxController!.danmakuConfigOptions.errorMsg("根据文件路径加载弹幕失败：$e");
+      playerGetxController!.logger
+          .d("${LoggerTag.danmakuLog}loadDanmakuByPath，根据文件路径加载弹幕失败：$e");
+    }
   }
 
   // 发送弹幕
   @override
-  void sendDanmaku(my_app.DanmakuItem danmakuItem) {
-    danmakuController?.addDanmaku(DanmakuContentItem(
-      danmakuItem.content,
-      color: decimalToColor(danmakuItem.color),
-      type: getDanmakuItemType(danmakuItem.mode),
+  void sendDanmaku(DanmakuItem danmakuItem) {
+    danmakuController?.addDanmaku(danmaku_package.DanmakuItem(
+      danmakuId: danmakuItem.danmakuId,
+      content: danmakuItem.content,
+      time: (danmakuItem.time * 1000).floor(),
+      mode: danmakuItem.mode,
+      fontSize: danmakuItem.fontSize,
+      color: danmakuItem.color,
+      createTime: danmakuItem.createTime == null
+          ? null
+          : Duration(seconds: danmakuItem.createTime!),
+      backgroundColor: Colors.black.withOpacity(0.5).value,
+      boldColor: Colors.greenAccent.value,
     ));
   }
 
   // 发送弹幕列表
   @override
-  void sendDanmakuList(List<my_app.DanmakuItem> danmakuItemList) {
-    for (my_app.DanmakuItem danmakuItem in danmakuItemList) {
+  void sendDanmakuList(List<DanmakuItem> danmakuItemList) {
+    for (DanmakuItem danmakuItem in danmakuItemList) {
       sendDanmaku(danmakuItem);
     }
   }
 
   // 启动弹幕
   @override
-  Future<bool?> startDanmaku({double? startTime}) {
+  Future<bool?> startDanmaku({int? startTime}) {
     playerGetxController!.logger.d("进入启动弹幕方法");
-    if (!playerGetxController!.danmakuConfigOptions.initialized.value ||
-        playerGetxController!.danmakuConfigOptions.danmakuView.value == null) {
-      playerGetxController!.danmakuControl.initDanmaku();
-    }
-    if (started) {
+    // if (!playerGetxController!.danmakuConfigOptions.initialized.value ||
+    //     playerGetxController!.danmakuConfigOptions.danmakuView.value == null) {
+    //   playerGetxController!.danmakuControl.initDanmaku();
+    // }
+    if (danmakuController != null && danmakuController!.running) {
       playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}startDanmaku，启动弹幕：弹幕已经启动过，无需再次启动！");
       return Future.value(true);
     }
     try {
       playerGetxController!.logger.d("启动弹幕");
-      listenerPlayDuration(second: startTime == null ? 0 : startTime.floor());
-      // 监听播放进度改变时同步读取对应时间的弹幕
-      ever(playerGetxController!.playConfigOptions.positionDuration,
-          (duration) {
-        if (playerGetxController!.playConfigOptions.playing.value &&
-            duration.inSeconds != prevPlaySecond) {
-          listenerPlayDuration(second: duration.inSeconds);
-        }
-      });
-      started = true;
+      danmakuController?.start(ms: startTime);
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("启动弹幕失败：$e");
       playerGetxController!.logger
@@ -190,10 +204,12 @@ class MyCanvasDanmaku extends IDanmaku {
       return Future.value(true);
     }
     try {
-      if (started) {
+      if (danmakuController!.running) {
         danmakuController?.resume();
       } else {
-        startDanmaku();
+        startDanmaku(
+            startTime: playerGetxController!
+                .playConfigOptions.positionDuration.value.inMilliseconds);
       }
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("继续弹幕失败：$e");
@@ -206,15 +222,15 @@ class MyCanvasDanmaku extends IDanmaku {
 
   // 弹幕跳转
   @override
-  Future<bool?> danmakuSeekTo(double time) {
+  Future<bool?> danmakuSeekTo(int time) {
     if (!playerGetxController!.playConfigOptions.initialized.value ||
         playerGetxController!.playConfigOptions.finished.value) {
       return Future.value(true);
     }
     try {
       danmakuController?.clear();
-      // 添加指定时间的弹幕
-      listenerPlayDuration(second: (time).floor());
+      danmakuController?.pause();
+      danmakuController?.start(ms: time);
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("弹幕跳转失败：$e");
       playerGetxController!.logger
@@ -240,7 +256,7 @@ class MyCanvasDanmaku extends IDanmaku {
           (!playerGetxController!.danmakuConfigOptions.initialized.value ||
               playerGetxController!.danmakuConfigOptions.danmakuView.value ==
                   null)) {
-        playerGetxController!.danmakuControl.initDanmaku();
+        // playerGetxController!.danmakuControl.initDanmaku();
         // 视频正在播放，就需要播放弹幕
         if (playerGetxController!.playConfigOptions.playing.value) {
           playerGetxController!.danmakuControl.resumeDanmaku();
@@ -338,7 +354,7 @@ class MyCanvasDanmaku extends IDanmaku {
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
-              .copyWith(showStroke: strokeWidth > 0));
+              .copyWith(strokeWidth: strokeWidth));
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("设置描边失败：$e");
       playerGetxController!.logger
@@ -356,21 +372,23 @@ class MyCanvasDanmaku extends IDanmaku {
 
   // 设置滚动速度
   @override
-  Future<bool?> setDanmakuSpeed(double speed, double playSpeed) {
+  Future<bool?> setDanmakuSpeed(int durationMs, double playSpeed) {
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
-              .copyWith(duration: (speed / playSpeed).toInt()));
+              .copyWith(duration: (durationMs / playSpeed).toInt()));
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("设置滚动速度失败：$e");
       playerGetxController!.logger
           .d("${LoggerTag.danmakuLog}setDanmakuSpeed，设置滚动速度失败：$e");
       return Future.value(false);
     }
+    Duration duration = Duration(milliseconds: durationMs);
     if (playerGetxController!.danmakuConfigOptions.danmakuSpeed.value.speed !=
-        speed) {
+        duration.inSeconds) {
       playerGetxController!.danmakuConfigOptions.danmakuSpeed.value.speed =
-          speed;
+          duration.inSeconds +
+              (duration.inMilliseconds - duration.inSeconds) / 1000.0;
     }
     return Future.value(true);
   }
@@ -378,6 +396,16 @@ class MyCanvasDanmaku extends IDanmaku {
   // 设置是否启用合并重复弹幕
   @override
   Future<bool?> setDuplicateMergingEnabled(bool flag) {
+    try {
+      danmakuController?.onUpdateOption(
+          (danmakuController?.option ?? getDanmakuOption())
+              .copyWith(filterRepeat: flag));
+    } catch (e) {
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置是否启用合并重复弹幕失败：$e");
+      playerGetxController!.logger.d(
+          "${LoggerTag.danmakuLog}setDuplicateMergingEnabled，设置是否启用合并重复弹幕失败：$e");
+      return Future.value(false);
+    }
     return Future.value(true);
   }
 
@@ -387,7 +415,7 @@ class MyCanvasDanmaku extends IDanmaku {
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
-              .copyWith(hideTop: visible));
+              .copyWith(filterTop: visible));
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示顶部固定弹幕失败：$e");
       playerGetxController!.logger.d(
@@ -403,7 +431,7 @@ class MyCanvasDanmaku extends IDanmaku {
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
-              .copyWith(hideScroll: visible));
+              .copyWith(filterScroll: visible));
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示滚动弹幕失败：$e");
       playerGetxController!.logger
@@ -419,7 +447,7 @@ class MyCanvasDanmaku extends IDanmaku {
     try {
       danmakuController?.onUpdateOption(
           (danmakuController?.option ?? getDanmakuOption())
-              .copyWith(hideBottom: visible));
+              .copyWith(filterBottom: visible));
     } catch (e) {
       playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示底部固定弹幕失败：$e");
       playerGetxController!.logger.d(
@@ -438,18 +466,53 @@ class MyCanvasDanmaku extends IDanmaku {
   // 是否显示彩色弹幕
   @override
   Future<bool?> setColorsDanmakuVisibility(bool visible) {
+    try {
+      danmakuController?.onUpdateOption(
+          (danmakuController?.option ?? getDanmakuOption())
+              .copyWith(filterColour: visible));
+    } catch (e) {
+      playerGetxController!.danmakuConfigOptions.errorMsg("设置是否显示彩色弹幕失败：$e");
+      playerGetxController!.logger.d(
+          "${LoggerTag.danmakuLog}setColorsDanmakuVisibility，设置是否显示彩色弹幕失败：$e");
+      return Future.value(false);
+    }
     return Future.value(true);
   }
 
   // 清空弹幕
   @override
   void clearDanmaku() {
-    danmakuController?.clear();
+    try {
+      danmakuController?.clear();
+    } catch (e) {
+      playerGetxController!.danmakuConfigOptions.errorMsg("清空弹幕失败：$e");
+      playerGetxController!.logger
+          .d("${LoggerTag.danmakuLog}clearDanmaku，清空弹幕失败：$e");
+    }
   }
 
   // 根据类型过滤弹幕
   @override
-  void filterDanmakuType(DanmakuFilterType filterType) {}
+  void filterDanmakuType(DanmakuFilterType filterType) {
+    switch (filterType.enName) {
+      case "fixedTop":
+        setFixedTopDanmakuVisibility(filterType.filter.value);
+        break;
+
+      case "fixedBottom":
+        setFixedBottomDanmakuVisibility(filterType.filter.value);
+        break;
+      case "scroll":
+        setRollDanmakuVisibility(filterType.filter.value);
+        break;
+      case "color":
+        setColorsDanmakuVisibility(filterType.filter.value);
+        break;
+      case "repeat":
+        setDuplicateMergingEnabled(filterType.filter.value);
+        break;
+    }
+  }
 
   // 调整弹幕时间
   @override
@@ -457,38 +520,4 @@ class MyCanvasDanmaku extends IDanmaku {
 
   @override
   void dispose() {}
-
-  // 获取弹幕类型
-  DanmakuItemType getDanmakuItemType(int mode) {
-    DanmakuItemType type = DanmakuItemType.scroll;
-    if (mode == 5) {
-      type = DanmakuItemType.top;
-    } else if (mode == 4) {
-      type = DanmakuItemType.bottom;
-    }
-    return type;
-  }
-
-  // 跟着视频发送弹幕
-  listenerPlayDuration({required int second, double? adjustTime}) {
-    playerGetxController!.logger.d(
-        "触发添加弹幕：${playerGetxController!.danmakuConfigOptions.initialized.value}, ${playerGetxController!.danmakuConfigOptions.visible.value}, ${playerGetxController!.danmakuConfigOptions.danmakuView.value}");
-    int addTime = second +
-        (adjustTime ??
-                playerGetxController!.danmakuConfigOptions.adjustTime.value)
-            .floor();
-    // 0秒时就需要清除弹幕，避免视频播放结束后重新播放导致起始部分还在播放结束的弹幕
-    if (addTime == 0) {
-      danmakuController?.clear();
-    }
-    List<DanmakuContentItem>? secondDanmakuItems = _danmakuItems[addTime];
-    if (secondDanmakuItems != null && secondDanmakuItems.isNotEmpty) {
-      for (DanmakuContentItem item in secondDanmakuItems) {
-        danmakuController?.addDanmaku(item);
-      }
-    }
-    debugPrint(
-        "当前秒数：$prevPlaySecond，$second，对应弹幕数：${secondDanmakuItems?.length}");
-    prevPlaySecond = addTime;
-  }
 }
