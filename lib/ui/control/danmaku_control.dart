@@ -34,23 +34,6 @@ class DanmakuControl {
           start: controller.playConfigOptions.playing.value,
           startMs: controller
               .playConfigOptions.positionDuration.value.inMilliseconds);
-      // try {
-      //   ParseBilibiliDanmaku()
-      //       .pasrseBilibiliDanmakuByXml(
-      //           controller.danmakuConfigOptions.danmakuSourceItem.value.path!,
-      //           fromAssets: controller.danmakuConfigOptions.danmakuSourceItem
-      //               .value.pathFromAssets!)
-      //       .then((List<DanmakuItem> list) {
-      //     if (list.isNotEmpty) {
-      //       controller.danmakuConfigOptions.danmakuList.addAll(list);
-      //     }
-
-      //     controller.logger.d(
-      //         "读取弹幕文件内容：${controller.danmakuConfigOptions.danmakuList.length}");
-      //   });
-      // } catch (e) {
-      //   controller.danmakuConfigOptions.errorMsg("读取弹幕文件出错：$e");
-      // }
     }
   }
 
@@ -106,15 +89,16 @@ class DanmakuControl {
   // 继续播放弹幕
   void resumeDanmaku() {
     // 只有弹幕显示时才需要
-    if (controller.playConfigOptions.playing.value &&
-        controller.danmakuConfigOptions.visible.value) {
-      if (!controller.danmakuConfigOptions.initialized.value ||
-          controller.danmakuConfigOptions.danmakuView.value == null) {
-        startDanmaku();
-      } else {
-        danmaku?.resumeDanmaku();
-      }
-    }
+    // if (controller.playConfigOptions.playing.value &&
+    //     controller.danmakuConfigOptions.visible.value) {
+    //   if (!controller.danmakuConfigOptions.initialized.value ||
+    //       controller.danmakuConfigOptions.danmakuView.value == null) {
+    //     startDanmaku();
+    //   } else {
+    //     danmaku?.resumeDanmaku();
+    //   }
+    // }
+    danmaku?.resumeDanmaku();
   }
 
   // 暂停弹幕
