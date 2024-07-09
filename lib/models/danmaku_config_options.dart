@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_jin_player/constants/ui_constants.dart';
 import 'package:flutter_jin_player/flutter_jin_player.dart';
 import 'package:get/get.dart';
 
@@ -84,11 +85,41 @@ class DanmakuConfigOptions {
 
   // 弹幕过滤类型
   var danmakuFilterTypeList = [
-    DanmakuFilterType(enName: "repeat", chName: "重复", modeList: []),
-    DanmakuFilterType(enName: "fixedTop", chName: "顶部", modeList: [5]),
-    DanmakuFilterType(enName: "fixedBottom", chName: "底部", modeList: [4]),
-    DanmakuFilterType(enName: "scroll", chName: "滚动", modeList: [1, 2, 3]),
-    DanmakuFilterType(enName: "color", chName: "彩色", modeList: []),
+    DanmakuFilterType(
+      enName: "repeat",
+      chName: "重复",
+      modeList: [],
+      openImageIcon: UIConstants.danmakuRepeatOpen,
+      closeImageIcon: UIConstants.danmakuRepeatClose,
+    ),
+    DanmakuFilterType(
+      enName: "fixedTop",
+      chName: "顶部",
+      modeList: [5],
+      openImageIcon: UIConstants.danmakuTopOpen,
+      closeImageIcon: UIConstants.danmakuTopClose,
+    ),
+    DanmakuFilterType(
+      enName: "fixedBottom",
+      chName: "底部",
+      modeList: [4],
+      openImageIcon: UIConstants.danmakuBottomOpen,
+      closeImageIcon: UIConstants.danmakuBottomClose,
+    ),
+    DanmakuFilterType(
+      enName: "scroll",
+      chName: "滚动",
+      modeList: [1, 2, 3, 6],
+      openImageIcon: UIConstants.danmakuScrollOpen,
+      closeImageIcon: UIConstants.danmakuScrollClose,
+    ),
+    DanmakuFilterType(
+      enName: "color",
+      chName: "彩色",
+      modeList: [],
+      openImageIcon: UIConstants.danmakuColorOpen,
+      closeImageIcon: UIConstants.danmakuColorClose,
+    ),
   ];
 
   // 时间调整

@@ -179,8 +179,88 @@ abstract class UIConstants {
     color: iconColor,
   );
   // 弹幕设置
-  static const ImageIcon barrageSetting = ImageIcon(
+  static const ImageIcon danmakuSetting = ImageIcon(
     AssetImage("assets/icons/danmaku_setting.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕滚动开
+  static const ImageIcon danmakuScrollOpen = ImageIcon(
+    AssetImage("assets/icons/danmaku_scroll_open.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕滚动关
+  static const ImageIcon danmakuScrollClose = ImageIcon(
+    AssetImage("assets/icons/danmaku_scroll_close.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕顶部开
+  static const ImageIcon danmakuTopOpen = ImageIcon(
+    AssetImage("assets/icons/danmaku_top_open.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕顶部关
+  static const ImageIcon danmakuTopClose = ImageIcon(
+    AssetImage("assets/icons/danmaku_top_close.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕底部开
+  static const ImageIcon danmakuBottomOpen = ImageIcon(
+    AssetImage("assets/icons/danmaku_bottom_open.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕底部关
+  static const ImageIcon danmakuBottomClose = ImageIcon(
+    AssetImage("assets/icons/danmaku_bottom_close.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕彩色开
+  static const ImageIcon danmakuColorOpen = ImageIcon(
+    AssetImage("assets/icons/danmaku_color_open.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕彩色关
+  static const ImageIcon danmakuColorClose = ImageIcon(
+    AssetImage("assets/icons/danmaku_color_close.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕重复开
+  static const ImageIcon danmakuRepeatOpen = ImageIcon(
+    AssetImage("assets/icons/danmaku_repeat_open.png",
+        package: "flutter_jin_player"),
+    size: iconSize,
+    color: iconColor,
+  );
+
+  // 弹幕重复关
+  static const ImageIcon danmakuRepeatClose = ImageIcon(
+    AssetImage("assets/icons/danmaku_repeat_close.png",
         package: "flutter_jin_player"),
     size: iconSize,
     color: iconColor,

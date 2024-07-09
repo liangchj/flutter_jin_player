@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 // 哔哩哔哩的xml弹幕
@@ -243,8 +244,15 @@ class DanmakuFilterType {
   final String enName;
   final String chName;
   final List<int> modeList;
+  final ImageIcon openImageIcon;
+  final ImageIcon closeImageIcon;
   var filter = false.obs;
 
-  DanmakuFilterType(
-      {required this.enName, required this.chName, required this.modeList});
+  DanmakuFilterType({
+    required this.enName,
+    required this.chName,
+    required this.modeList,
+    required this.openImageIcon,
+    required this.closeImageIcon,
+  });
 }

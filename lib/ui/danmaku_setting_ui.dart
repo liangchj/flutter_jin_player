@@ -82,7 +82,9 @@ class DanmakuSettingUI extends GetView<PlayerGetxController> {
                                     filterType.filter(!filterType.filter.value),
                                 child: Column(
                                   children: [
-                                    UIConstants.lockedIcon,
+                                    filterType.filter.value
+                                        ? filterType.closeImageIcon
+                                        : filterType.closeImageIcon,
                                     Text(
                                       filterType.chName,
                                       style: TextStyle(

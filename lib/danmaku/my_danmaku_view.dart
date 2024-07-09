@@ -74,6 +74,9 @@ class MyDanmakuView extends IDanmaku {
       duration: (speed * 1000).floor(),
       strokeWidth: playerGetxController!
           .danmakuConfigOptions.danmakuStyleStrokeWidth.value.strokeWidth,
+      adjustTimeMs:
+          (playerGetxController!.danmakuConfigOptions.adjustTime.value * 1000)
+              .floor(),
     );
     for (DanmakuFilterType filterType
         in playerGetxController!.danmakuConfigOptions.danmakuFilterTypeList) {

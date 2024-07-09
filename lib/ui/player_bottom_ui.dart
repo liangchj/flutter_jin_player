@@ -102,7 +102,7 @@ class PlayerBottomUI extends GetView<PlayerGetxController> {
                 IconButton(
                     onPressed: () => controller.uiControl
                         .onlyShowUIByKeyList([GetxId.danmakuSettingUI]),
-                    icon: UIConstants.barrageSetting),
+                    icon: UIConstants.danmakuSetting),
 
                 Expanded(child: Container()),
 
