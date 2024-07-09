@@ -1,7 +1,7 @@
 name: flutter_jin_player
 description: "播放器和ui控制，支持弹幕"
 version: 0.0.1
-homepage:
+# homepage:
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
